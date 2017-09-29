@@ -18135,6 +18135,26 @@
             "        NEWLINE:'\\n'  <== mode:DEFAULT_MODE)))",
             "  (stanza",
             "    (s_null",
+            "      (null_no",
+            "        NO:'no'  <== mode:DEFAULT_MODE",
+            "        TIMEOUT:'timeout'  <== mode:DEFAULT_MODE",
+            "        NEWLINE:'\\n'  <== mode:DEFAULT_MODE)))",
+            "  (stanza",
+            "    (s_null",
+            "      (null_single",
+            "        TIMEOUT:'timeout'  <== mode:DEFAULT_MODE",
+            "        XLATE:'xlate'  <== mode:DEFAULT_MODE",
+            "        IPV6_ADDRESS:'3:00:00'  <== mode:DEFAULT_MODE",
+            "        NEWLINE:'\\n'  <== mode:DEFAULT_MODE)))",
+            "  (stanza",
+            "    (s_null",
+            "      (null_single",
+            "        TIMEOUT:'timeout'  <== mode:DEFAULT_MODE",
+            "        PAT_XLATE:'pat-xlate'  <== mode:DEFAULT_MODE",
+            "        IPV6_ADDRESS:'0:00:30'  <== mode:DEFAULT_MODE",
+            "        NEWLINE:'\\n'  <== mode:DEFAULT_MODE)))",
+            "  (stanza",
+            "    (s_null",
             "      (null_block",
             "        NO:'no'  <== mode:DEFAULT_MODE",
             "        MPLS:'mpls'  <== mode:DEFAULT_MODE",
@@ -39549,7 +39569,7 @@
           "ipv4/6 acl" : {
             "cops-acl" : {
               "cops listener access-list" : [
-                100
+                103
               ]
             }
           }

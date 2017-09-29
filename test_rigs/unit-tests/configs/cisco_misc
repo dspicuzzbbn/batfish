@@ -6,6 +6,9 @@ no bloggerd log-dump all
 bloggerd log-throttle
 no bloggerd log-transfer
 ip mfwd event-history packet size small
+no timeout
+timeout xlate 3:00:00
+timeout pat-xlate 0:00:30
 no mpls strip
 vlan ifdescr detail
 wrr-queue cos-map 0 0 1
