@@ -1,5 +1,7 @@
 parser grammar NetscreenParser;
 
+import Netscreen_common, Netscreen_interface, Netscreen_policy, Netscreen_vrouter;
+
 options {
    superClass = 'org.batfish.grammar.BatfishParser';
    tokenVocab = NetscreenLexer;
@@ -10,14 +12,11 @@ netscreen_configuration
    statement+ EOF
 ;
 
-port_range
-:
-    DEC DASH DEC
-;
-
 protocol
 :
-   TCP
+   ICMP
+   | IGMP
+   | TCP
    | UDP
 ;
 
@@ -34,28 +33,55 @@ statement
             | s_group
             | s_hostname
             | s_interface
+            | s_mcast_policy
             | s_null
             | s_policy
             | s_service
+            | s_url
+            | s_usergroup
             | s_vrouter
             | s_zone
          )
       )
-      | EXIT
    ) NEWLINE
 ;
 
 s_address
 :
-    ADDRESS zname = variable addname = variable address = IP_ADDRESS netmask = IP_ADDRESS
+   ADDRESS
+   zoneName = variable
+   addrname = variable
+   (
+      address = IP_ADDRESS netmask = IP_ADDRESS
+      | ipv6_prefix = IPV6_PREFIX
+      | sa_fqdn
+   )
+   (
+      description = variable
+   )?
+;
+
+sa_fqdn
+:
+   (
+      STAR
+      | variable
+   )
+   (
+      PERIOD variable
+   )+
 ;
 
 s_group
 :
-    GROUP ADDRESS zonename = variable groupname = variable
-    (
-       ADD address = variable
-    )?
+   GROUP
+   (
+      sg_address
+      | sg_service
+   )
+   (
+      COMMENT variable
+   )?
 ;
 
 s_hostname
@@ -63,137 +89,160 @@ s_hostname
     HOSTNAME variable
 ;
 
-s_interface
+s_mcast_policy
 :
-    INTERFACE variable
-    (
-       si_ip
-       | si_mip
-       | si_nat
-       | si_null
-       | si_route
-       | si_zone
-    )
+   MULTICAST_GROUP_POLICY (~NEWLINE)+
 ;
 
 s_null
 :
-    (
-       CLOCK
-       | ADD_DEFAULT_ROUTE
-       | AUTH
-       | AUTH_SERVER
-       | AUTO_ROUTE_EXPORT
-       | ADMIN
-       | CONFIG
-       | CONSOLE
-       | IKE
-       | IPSEC
-       | FLOW
-       | NSMGMT
-       | NSRP
-       | PKI
-       | SNMP
-       | SSH
-       | URL
-    ) (~NEWLINE)*
-;
-
-s_policy
-:
-    POLICY ID DEC
-    (
-       FROM fromzone = variable
-       TO tozone = variable
-       srcaddress = variable
-       dstaddress = variable
-       proto = variable
-       (
-          DENY
-          | PERMIT
-       )
-       LOG?
-    )?
+   (
+      CLOCK
+      | ADD_DEFAULT_ROUTE
+      | ALG
+      | ARP
+      | ATTACK
+      | AUTH
+      | AUTH_SERVER
+      | AUTO_ROUTE_EXPORT
+      | ADMIN
+      | CONFIG
+      | CONSOLE
+      | 
+      (
+         CRYPTO_POLICY NEWLINE EXIT
+      )
+      | DBUF
+      | DOMAIN
+      | DNS
+      | FLOW
+      | IKE
+      | IPSEC
+      | KEY
+      | LICENSE_KEY
+      | LOG
+      | NSMGMT
+      | NSRP
+      | NTP
+      | PKI
+      | PROTOCOL
+      | SCHEDULER
+      | SCP
+      | SNMP
+      | SNMPV3
+      | SSH
+      | SSL
+      | SYSLOG
+      | TELNET
+      | TFTP
+      | USER_GROUP
+      | VPN
+      | WEBAUTH
+   ) (~NEWLINE)*
 ;
 
 
 s_service
 :
-    SERVICE name = variable
-    PROTOCOL proto = protocol
-    SRC_PORT src_ports = port_range
-    DST_PORT dst_ports = port_range
+   SERVICE name = variable
+   (
+      ss_details
+      | ss_timeout
+   )
 ;
 
-s_vrouter
+s_url
 :
-    VROUTER variable SHARABLE?
+   URL PROTOCOL name = variable NEWLINE EXIT
 ;
 
+s_usergroup
+:
+   USER_GROUP zonename = variable groupname = variable
+   (
+      ADD address = variable
+   )?
+;
 
 s_zone
 :
-    ZONE name = variable
-    (
-       BLOCK
-       |
-       (
-            SCREEN sname = variable
-       )
-       | TCP_RST
-       |
-       (
-          VROUTER vname = variable
-       )
-    )
+   ZONE
+   (
+      sz_id
+      | sz_name
+   )
 ;
 
-si_ip
+sg_address
 :
-    IP
-    (
-       IP_PREFIX
-       | MANAGEABLE
-    )?
+   ADDRESS zonename = variable groupname = variable
+   (
+      ADD address = variable
+   )?
 ;
 
-si_mip
+sg_service
 :
-    MIP address = IP_ADDRESS
-    HOST host = IP_ADDRESS
-    NETMASK mast = IP_ADDRESS
-    VR variable
+   SERVICE name = variable
+   (
+      ADD address = variable
+   )?
 ;
 
-si_nat
-:
-    NAT
-;
-
-si_null
-:
-    (
-        BYPASS_OTHERS_IPSEC
-        | BYPASS_NON_IP
-    )
-;
-
-si_route
-:
-    ROUTE
-;
-
-si_zone
-:
-   ZONE variable
-;
-
-variable
+ss_details
 :
    (
+      PROTOCOL
+      | PLUS
+   )
+   (
+      proto = protocol
+      | protoNum = DEC
+   )
+   SRC_PORT src_ports = port_range
+   DST_PORT dst_ports = port_range
+;
+
+ss_timeout
+:
+   TIMEOUT timeout = DEC
+;
+
+su_null
+:
+   (
+      SET
+      | UNSET
+   )
+   (
+      CACHE
+      | CATEGORY
+      | DENY_MESSAGE
+      | ENABLE
+      | PROFILE
+      | USER_GROUP
+   )
+   ~NEWLINE* NEWLINE
+;
+
+sz_id
+:
+   ID id = DEC name = variable
+;
+
+sz_name
+:
+   name = variable
+   (
+      BLOCK
+      |
       (
-         DOUBLE_QUOTE QUOTED_TEXT DOUBLE_QUOTE
+         SCREEN sname = variable
       )
-      | VARIABLE
+      | TCP_RST
+      |
+      (
+         VROUTER vname = variable
+      )
    )
 ;
