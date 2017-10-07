@@ -64,9 +64,24 @@ ADVERTISE_DEF_ROUTE
    'advertise-def-route'
 ;
 
+AES128
+:
+   'aes128'
+;
+
+AGGR
+:
+   'Aggr'
+;
+
 ALG
 :
    'alg'
+;
+
+ALL
+:
+   'all'
 ;
 
 APPLICATION
@@ -117,6 +132,11 @@ BANDWIDTH
 BASE_REACHABLE_TIME
 :
    'base-reachable-time'
+;
+
+BIND
+:
+   'bind'
 ;
 
 BLOCK
@@ -177,6 +197,16 @@ CACHE
 CATEGORY
 :
    'category'
+;
+
+CERT
+:
+   'cert'
+;
+
+CHECK
+:
+   'check'
 ;
 
 CLOCK
@@ -244,6 +274,11 @@ DENY
    'deny'
 ;
 
+DES
+:
+   'des'
+;
+
 DHCP
 :
    'dhcp'
@@ -279,9 +314,19 @@ DOMAIN
    'domain'
 ;
 
+DOS_PROTECTION
+:
+   'dos-protection'
+;
+
 DNS
 :
    'dns'
+;
+
+DSCP_MARK
+:
+   'dscp-mark'
 ;
 
 DST
@@ -312,6 +357,11 @@ ENABLE
 ENCAP
 :
    'encap'
+;
+
+ESP
+:
+   'esp'
 ;
 
 EXIT
@@ -355,6 +405,26 @@ GROUP
    'group'
 ;
 
+GROUP1
+:
+   'group1'
+;
+
+GROUP2
+:
+   'group2'
+;
+
+GROUP5
+:
+   'group5'
+;
+
+GROUP14
+:
+   'group14'
+;
+
 GROUPS
 :
    'groups'
@@ -385,6 +455,11 @@ ID
    'id'
 ;
 
+IDLETIME
+:
+   'idletime'
+;
+
 IGMP
 :
    'igmp'
@@ -393,6 +468,16 @@ IGMP
 IKE
 :
    'ike'
+;
+
+IKEID_ENUMERATION
+:
+   'ikeid-enumeration'
+;
+
+IKEV2
+:
+   'ikev2'
 ;
 
 INGRESS
@@ -420,6 +505,11 @@ IPSEC
    'ipsec'
 ;
 
+KEEPALIVE_FREQUENCY
+:
+   'keepalive-frequency'
+;
+
 KEY
 :
    'key'
@@ -435,14 +525,19 @@ LINK_ADDRESS
    'link-address'
 ;
 
+LOCAL_IP
+:
+   'local-ip'
+;
+
 LOG
 :
    'log'
 ;
 
-MAX_NEIGHBOR_COUNT
+MAIN
 :
-   'max-neighbor-count'
+   'Main'
 ;
 
 MANAGE
@@ -475,9 +570,19 @@ MAX_ENTRIES
    'max-entries'
 ;
 
+MAX_NEIGHBOR_COUNT
+:
+   'max-neighbor-count'
+;
+
 MBW
 :
    'mbw'
+;
+
+MD5
+:
+   'md5'
 ;
 
 METRIC
@@ -498,6 +603,11 @@ MIP
 MODE
 :
    'mode'
+;
+
+MONITOR
+:
+   'monitor'
 ;
 
 MROUTE
@@ -525,6 +635,11 @@ NAT
    'nat'
 ;
 
+NAT_TRAVERSAL
+:
+   'nat-traversal'
+;
+
 ND
 :
    'nd'
@@ -548,6 +663,11 @@ NETMASK
 NONE
 :
    'none'
+;
+
+NO_REPLAY
+:
+   'no-replay'
 ;
 
 NSMGMT
@@ -585,6 +705,21 @@ OTHER
    'other'
 ;
 
+OUTGOING_INTERFACE
+:
+   'outgoing-interface'
+;
+
+P1_PROPOSAL
+:
+   'p1-proposal'
+;
+
+P2_PROPOSAL
+:
+   'p2-proposal'
+;
+
 PAIR_POLICY
 :
    'pair-policy'
@@ -598,6 +733,11 @@ PASSWORD
 PBW
 :
    'pbw'
+;
+
+PEER_CA
+:
+   'peer-ca'
 ;
 
 PERMIT
@@ -620,6 +760,11 @@ POLICY
    'policy'
 ;
 
+POLICY_CHECKING
+:
+   'policy-checking'
+;
+
 PORT
 :
    'port'
@@ -635,6 +780,11 @@ PREFERENCE
    'preference'
 ;
 
+PRESHARE
+:
+   'preshare'
+;
+
 PROBE_TIME
 :
    'probe-time'
@@ -645,9 +795,19 @@ PROFILE
    'profile'
 ;
 
+PROPOSAL
+:
+   'proposal'
+;
+
 PROTOCOL
 :
    'protocol'
+;
+
+PROXY_ID
+:
+   'proxy-id'
 ;
 
 RA
@@ -663,6 +823,21 @@ RADIUS
 REDISTRIBUTE
 :
    'redistribute'
+;
+
+REMOTE_IP
+:
+   'remote-ip'
+;
+
+REPLAY
+:
+   'replay'
+;
+
+RESPOND_BAD_SPI
+:
+   'respond-bad-spi'
 ;
 
 RETRANSMIT_TIME
@@ -690,6 +865,11 @@ ROUTER_ID
    'router-id'
 ;
 
+RSA
+:
+   'rsa'
+;
+
 SCHEDULER
 :
    'scheduler'
@@ -703,6 +883,11 @@ SCREEN
 SCP
 :
    'scp'
+;
+
+SECOND
+:
+   'second'
 ;
 
 SECONDARY
@@ -728,6 +913,11 @@ SERVICE
 SET
 :
    'set'
+;
+
+SHA_1
+:
+   'sha-1'
 ;
 
 SHARABLE
@@ -805,6 +995,11 @@ TFTP
    'tftp'
 ;
 
+THREEDES
+:
+   '3des'
+;
+
 TIMEOUT
 :
    'timeout'
@@ -843,6 +1038,11 @@ TUNNEL
 UDP
 :
    'udp'
+;
+
+UDP_CHECKSUM
+:
+   'udp-checksum'
 ;
 
 UNNUMBERED

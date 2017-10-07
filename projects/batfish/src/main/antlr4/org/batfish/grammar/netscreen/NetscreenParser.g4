@@ -1,6 +1,6 @@
 parser grammar NetscreenParser;
 
-import Netscreen_common, Netscreen_interface, Netscreen_policy, Netscreen_vrouter;
+import Netscreen_common, Netscreen_interface, Netscreen_policy, Netscreen_vpn, Netscreen_vrouter;
 
 options {
    superClass = 'org.batfish.grammar.BatfishParser';
@@ -32,6 +32,7 @@ statement
             s_address
             | s_group
             | s_hostname
+            | s_ike
             | s_interface
             | s_mcast_policy
             | s_null
@@ -39,6 +40,7 @@ statement
             | s_service
             | s_url
             | s_usergroup
+            | s_vpn
             | s_vrouter
             | s_zone
          )
@@ -116,7 +118,6 @@ s_null
       | DOMAIN
       | DNS
       | FLOW
-      | IKE
       | IPSEC
       | KEY
       | LICENSE_KEY
@@ -136,7 +137,6 @@ s_null
       | TELNET
       | TFTP
       | USER_GROUP
-      | VPN
       | WEBAUTH
    ) (~NEWLINE)*
 ;

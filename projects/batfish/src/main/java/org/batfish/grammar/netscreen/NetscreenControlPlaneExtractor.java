@@ -9,14 +9,20 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.batfish.common.Warnings;
+import org.batfish.datamodel.DiffieHellmanGroup;
+import org.batfish.datamodel.EncryptionAlgorithm;
+import org.batfish.datamodel.IkeAuthenticationAlgorithm;
+import org.batfish.datamodel.IkeAuthenticationMethod;
 import org.batfish.grammar.ControlPlaneExtractor;
 import org.batfish.grammar.netscreen.NetscreenParser.Interface_nameContext;
 import org.batfish.grammar.netscreen.NetscreenParser.S_addressContext;
 import org.batfish.grammar.netscreen.NetscreenParser.S_groupContext;
 import org.batfish.grammar.netscreen.NetscreenParser.S_hostnameContext;
+import org.batfish.grammar.netscreen.NetscreenParser.S_ikeContext;
 import org.batfish.grammar.netscreen.NetscreenParser.S_interfaceContext;
 import org.batfish.grammar.netscreen.NetscreenParser.S_policyContext;
 import org.batfish.grammar.netscreen.NetscreenParser.S_serviceContext;
+import org.batfish.grammar.netscreen.NetscreenParser.S_vpnContext;
 import org.batfish.grammar.netscreen.NetscreenParser.S_vrouterContext;
 import org.batfish.grammar.netscreen.NetscreenParser.S_zoneContext;
 import org.batfish.grammar.netscreen.NetscreenParser.StatementContext;
@@ -24,12 +30,15 @@ import org.batfish.grammar.netscreen.NetscreenParser.VariableContext;
 import org.batfish.representation.netscreen.AccessList;
 import org.batfish.representation.netscreen.Address;
 import org.batfish.representation.netscreen.AddressGroup;
+import org.batfish.representation.netscreen.IkeGateway;
+import org.batfish.representation.netscreen.IkeProposal;
 import org.batfish.representation.netscreen.Interface;
 import org.batfish.representation.netscreen.NetscreenConfiguration;
 import org.batfish.representation.netscreen.Policy;
 import org.batfish.representation.netscreen.Policy.PolicyTarget;
 import org.batfish.representation.netscreen.VRouterRoute;
 import org.batfish.representation.netscreen.VRouterRouteMap;
+import org.batfish.representation.netscreen.Vpn;
 import org.batfish.representation.netscreen.Service;
 import org.batfish.representation.netscreen.ServiceDetails;
 import org.batfish.representation.netscreen.ServiceGroup;
@@ -99,6 +108,10 @@ public class NetscreenControlPlaneExtractor extends NetscreenParserBaseListener
   
   private static Integer getDec(Token dec) {
     return Integer.valueOf(dec.getText());
+  }
+  
+  private static Integer getHex(Token hex) {
+    return Integer.valueOf(hex.getText().substring(2), 16);
   }
   
   // helper function to make processing easier
@@ -171,6 +184,90 @@ public class NetscreenControlPlaneExtractor extends NetscreenParserBaseListener
   public void exitS_hostname(S_hostnameContext ctx) {
     String hostname = getVariableText(ctx.variable());
     _configuration.setHostname(hostname);
+  }
+  
+  @Override
+  public void exitS_ike(S_ikeContext ctx) {
+    ifPresent(ctx.sike_gateway(), sike_gw -> {
+      IkeGateway gw = _configuration.getIkeGateway(getVariableText(sike_gw.gw));
+      
+      ifPresent(sike_gw.sikegw_address(), sikegw_address -> {
+        gw.setAddress(sikegw_address.address.getText());
+        
+        if (sikegw_address.id != null) {
+          gw.setId(sikegw_address.id.getText());
+        }
+        
+        ifPresent(sikegw_address.outiface, iface -> {
+          gw.setOutgoingInterface(getInterfaceName(iface));
+        });
+        
+        ifPresent(sikegw_address.preshare, preshare -> {
+          gw.setPreshareKey(getVariableText(preshare));
+        });
+        
+        ifPresent(sikegw_address.p1, p1 -> {
+          gw.setP1Proposal(getVariableText(p1));
+        });
+        
+        ifPresent(sikegw_address.p2, p2 -> {
+          gw.setP2Proposal(getVariableText(p2));
+        });
+      });
+      
+      ifPresent(sike_gw.sikegw_nat(), sikegw_nat -> {
+        if (sikegw_nat.kfreq != null) {
+          gw.setKeepAliveFrequency(getDec(sikegw_nat.kfreq));
+        }
+        
+        if (sikegw_nat.UDP_CHECKSUM() != null) {
+          gw.setUdpChecksum(_stmt_set);
+        }
+      });
+    });
+    
+    ifPresent(ctx.sike_proposal(), sike_proposal -> {
+      
+      IkeProposal prop;
+      
+      if (sike_proposal.P1_PROPOSAL() != null) {
+        prop = _configuration.getIkeP1Proposal(getVariableText(sike_proposal.name));
+      } else {
+        prop = _configuration.getIkeP2Proposal(getVariableText(sike_proposal.name));
+      }
+      
+      if (sike_proposal.PRESHARE() != null) {
+        prop.setAuthenticationMethod(IkeAuthenticationMethod.PRE_SHARED_KEYS);
+      } else if (sike_proposal.RSA() != null) {
+        prop.setAuthenticationMethod(IkeAuthenticationMethod.RSA_SIGNATURES);
+      }
+      
+      if (sike_proposal.GROUP1() != null) {
+        prop.setDhGroup(DiffieHellmanGroup.GROUP1);
+      } else if (sike_proposal.GROUP2() != null) {
+        prop.setDhGroup(DiffieHellmanGroup.GROUP2);
+      } else if (sike_proposal.GROUP5() != null) {
+        prop.setDhGroup(DiffieHellmanGroup.GROUP5);
+      } else if (sike_proposal.GROUP14() != null) {
+        prop.setDhGroup(DiffieHellmanGroup.GROUP14);
+      }
+      
+      if (sike_proposal.AES128() != null) {
+        prop.setEncryptionAlgorithm(EncryptionAlgorithm.AES_128_CBC);
+      } else if (sike_proposal.DES() != null) {
+        prop.setEncryptionAlgorithm(EncryptionAlgorithm.DES_CBC);
+      } else if (sike_proposal.THREEDES() != null) {
+        prop.setEncryptionAlgorithm(EncryptionAlgorithm.THREEDES_CBC);
+      }
+      
+      if (sike_proposal.MD5() != null) {
+        prop.setHashAlgorithm(IkeAuthenticationAlgorithm.MD5);
+      } else if (sike_proposal.SHA_1() != null) {
+        prop.setHashAlgorithm(IkeAuthenticationAlgorithm.SHA1);
+      }
+      
+      prop.setSeconds(getDec(sike_proposal.second));
+    });
   }
   
   @Override
@@ -262,6 +359,17 @@ public class NetscreenControlPlaneExtractor extends NetscreenParserBaseListener
       ifPresent(cfg.spc_traffic(), unused -> {
         todo(unused, "policy traffic shaping rules");
       });
+      
+      ifPresent(cfg.spc_tunnel(), spc_tunnel -> {
+        policy.setVpnName(getVariableText(spc_tunnel.vpnName));
+        if (spc_tunnel.id != null) {
+          policy.setVpnId(getHex(spc_tunnel.id));
+        }
+        
+        if (spc_tunnel.pp != null) {
+          policy.setVpnPairPolicy(getDec(spc_tunnel.pp));
+        }
+      });
     });
     
     // block version
@@ -319,6 +427,48 @@ public class NetscreenControlPlaneExtractor extends NetscreenParserBaseListener
       service.setTimeout(Integer.valueOf(timeout.timeout.getText()));
     });
     
+  }
+  
+  @Override
+  public void exitS_vpn(S_vpnContext ctx) {
+    Vpn vpn = _configuration.getVpn(getVariableText(ctx.name));
+    
+    ifPresent(ctx.svpn_gateway(), svpn_gateway -> {
+      if(svpn_gateway.NO_REPLAY() != null) {
+        vpn.setReplay(false);
+      } else if (svpn_gateway.REPLAY() != null) {
+        vpn.setReplay(true);
+      }
+      
+      ifPresent(svpn_gateway.idletime, idletime -> {
+        vpn.setIdleTime(getDec(idletime));
+      });
+      
+      ifPresent(svpn_gateway.p1, p1 -> {
+        vpn.setP1Proposal(getVariableText(p1));
+      });
+      
+      ifPresent(svpn_gateway.p2, p2 -> {
+        vpn.setP2Proposal(getVariableText(p2));
+      });
+    });
+    
+    ifPresent(ctx.svpn_bind(), svpn_bind -> {
+      if (svpn_bind.id != null) {
+        vpn.setBindId(getHex(svpn_bind.id));
+        vpn.setBindInterface(getInterfaceName(svpn_bind.iface));
+      } else if (svpn_bind.zone != null){
+        vpn.setBindZone(getVariableText(svpn_bind.zone));
+      }
+    });
+    
+    ifPresent(ctx.svpn_proxy(), svpn_proxy -> {
+      if (svpn_proxy.localip != null) {
+        vpn.setProxyLocalIp(svpn_proxy.localip.getText());
+        vpn.setProxyRemoteIp(svpn_proxy.remoteip.getText());
+        vpn.setProxyService(getVariableText(svpn_proxy.service));
+      }
+    });
   }
   
   @Override

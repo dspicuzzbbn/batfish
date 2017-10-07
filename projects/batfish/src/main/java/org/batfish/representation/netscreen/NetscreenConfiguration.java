@@ -11,6 +11,7 @@ import org.batfish.common.VendorConversionException;
 import org.batfish.datamodel.Configuration;
 import org.batfish.datamodel.ConfigurationFormat;
 import org.batfish.datamodel.LineAction;
+import org.batfish.representation.netscreen.IkeProposal.ProposalType;
 import org.batfish.vendor.VendorConfiguration;
 
 public class NetscreenConfiguration extends VendorConfiguration {
@@ -26,6 +27,12 @@ public class NetscreenConfiguration extends VendorConfiguration {
  
   private final Map<String, AddressGroup> _addressGroups;
   
+  private final Map<String, IkeGateway> _ikeGateways;
+  
+  private final Map<String, IkeProposal> _ikeP1Proposals;
+  
+  private final Map<String, IkeProposal> _ikeP2Proposals;
+  
   private final Map<String, Interface> _interfaces;
   
   private final Map<Integer, Policy> _policies;
@@ -33,6 +40,8 @@ public class NetscreenConfiguration extends VendorConfiguration {
   private final Map<String, Service> _services;
   
   private final Map<String, ServiceGroup> _serviceGroups;
+  
+  private final Map<String, Vpn> _vpns;
   
   private final Map<String, VRouter> _vrouters;
   
@@ -47,10 +56,14 @@ public class NetscreenConfiguration extends VendorConfiguration {
     
     _addressGroups = new TreeMap<>();
     _addresses = new TreeMap<>();
+    _ikeGateways = new TreeMap<>();
+    _ikeP1Proposals = new TreeMap<>();
+    _ikeP2Proposals = new TreeMap<>();
     _interfaces = new TreeMap<>();
     _policies = new TreeMap<>();
     _services = new TreeMap<>();
     _serviceGroups = new TreeMap<>();
+    _vpns = new TreeMap<>();
     _vrouters = new TreeMap<>();
     _zones = new TreeMap<>();
     
@@ -82,11 +95,38 @@ public class NetscreenConfiguration extends VendorConfiguration {
     return _hostname;
   }
   
+  public IkeGateway getIkeGateway(String name) {
+    IkeGateway gw = _ikeGateways.get(name);
+    if (gw == null) {
+      gw = new IkeGateway(name);
+      _ikeGateways.put(name, gw);
+    }
+    return gw;
+  }
+  
+  public IkeProposal getIkeP1Proposal(String name) {
+    IkeProposal p = _ikeP1Proposals.get(name);
+    if (p == null) {
+      p = new IkeProposal(name, ProposalType.Phase1);
+      _ikeP1Proposals.put(name, p);
+    }
+    return p;
+  }
+  
+  public IkeProposal getIkeP2Proposal(String name) {
+    IkeProposal p = _ikeP2Proposals.get(name);
+    if (p == null) {
+      p = new IkeProposal(name, ProposalType.Phase2);
+      _ikeP2Proposals.put(name, p);
+    }
+    return p;
+  }
+  
   public Interface getInterface(String name) {
     Interface iface = _interfaces.get(name);
     if (iface == null) {
       iface = new Interface(name);
-      _interfaces.put(name,  iface);
+      _interfaces.put(name, iface);
     }
     return iface;
   }
@@ -116,6 +156,15 @@ public class NetscreenConfiguration extends VendorConfiguration {
       _serviceGroups.put(groupName, sg);
     }
     return sg;
+  }
+  
+  public Vpn getVpn(String name) {
+    Vpn vpn = _vpns.get(name);
+    if (vpn == null) {
+      vpn = new Vpn(name);
+      _vpns.put(name, vpn);
+    }
+    return vpn;
   }
   
   public VRouter getVRouter(String name) {

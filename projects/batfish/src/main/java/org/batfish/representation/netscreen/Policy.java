@@ -60,7 +60,12 @@ set policy id 3 from "Untrust" to "DMZ"  "Any-IPv4" "something" "HTTP" permit lo
   // qos-profile?
   
   // permit / deny
-  private PolicyTarget _allowed; 
+  private PolicyTarget _allowed;
+  
+  private String _vpnName;
+  private Integer _vpnId;
+  private Integer _vpnPairPolicy;
+  
   
   // log
   private boolean _log;
@@ -139,5 +144,29 @@ set policy id 3 from "Untrust" to "DMZ"  "Any-IPv4" "something" "HTTP" permit lo
 
   public void setLog(boolean log) {
     _log = log;
+  }
+
+  public String getVpnName() {
+    return _vpnName;
+  }
+
+  public void setVpnName(String vpnName) {
+    _vpnName = vpnName;
+  }
+
+  public Integer getVpnId() {
+    return _vpnId;
+  }
+
+  public void setVpnId(Integer vpnId) {
+    _vpnId = vpnId;
+  }
+
+  public Integer getVpnPairPolicy() {
+    return _vpnPairPolicy;
+  }
+
+  public void setVpnPairPolicy(Integer vpnPairPolicy) {
+    _vpnPairPolicy = vpnPairPolicy;
   }
 }
