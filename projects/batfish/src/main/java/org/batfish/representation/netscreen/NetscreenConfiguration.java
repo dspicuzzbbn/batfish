@@ -7,6 +7,7 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import org.batfish.common.VendorConversionException;
 import org.batfish.datamodel.Configuration;
 import org.batfish.datamodel.ConfigurationFormat;
@@ -18,8 +19,6 @@ public class NetscreenConfiguration extends VendorConfiguration {
 
   /** */
   private static final long serialVersionUID = 1L;
-
-  private transient Configuration _c;
 
   private String _hostname;
   
@@ -220,12 +219,21 @@ public class NetscreenConfiguration extends VendorConfiguration {
   public void setVendor(ConfigurationFormat format) {
     _vendor = format;
   }
+  
+  private static <T> void auto(T t, Consumer<T> c) {
+    c.accept(t);
+  }
 
   @Override
   public Configuration toVendorIndependentConfiguration() throws VendorConversionException {
-    _c = new Configuration(_hostname);
+    final Configuration _c = new Configuration(_hostname);
     _c.setDefaultCrossZoneAction(LineAction.ACCEPT);
     _c.setDefaultInboundAction(LineAction.REJECT);
+    
+    // zones
+    // -> each zone is associated with a vrouter, and there
+    //NavigableMap<String, org.batfish.datamodel.Zone>
+    
     
     NavigableMap<String, org.batfish.datamodel.Interface> interfaces = new TreeMap<>();
     for (Interface iface: _interfaces.values()) {
@@ -234,6 +242,11 @@ public class NetscreenConfiguration extends VendorConfiguration {
     }
     
     _c.setInterfaces(interfaces);
+    
+    // ike gateways
+    auto(_c.getIkeGateways(), ikeGateways -> {
+      ikeGateways.put("Hi", null);
+    });
     
     return _c;
   }
